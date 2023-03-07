@@ -24,6 +24,7 @@ class CompanyController extends Controller
             $query->where('user_id', Auth::id());
         });
 
+        // Get single data
         if ($id) {
             $company = $companyQuery->find($id);
 
@@ -34,6 +35,7 @@ class CompanyController extends Controller
             return ResponseFormatter::error('Company Not Found', 404);
         }
 
+        // Get multiple data
         $companies = $companyQuery;
 
         if ($name) {
@@ -50,10 +52,12 @@ class CompanyController extends Controller
     public function create(CreateCompanyRequest $request)
     {
         try {
+            // Upload logo
             if ($request->hasFile('logo')) {
                 $path = $request->file('logo')->store('public/logos');
             }
 
+            // Create company
             $company = Company::create([
                 'name' => $request->name,
                 'logo' => $path,
@@ -63,9 +67,11 @@ class CompanyController extends Controller
                 throw new Exception('Company Not Created');
             }
 
+            // Attach company to user
             $user = User::find(Auth::id());
             $user->company()->attach($company->id);
 
+            // Load users at company
             $company->load('users');
 
             return ResponseFormatter::success($company, 'Company Created');
@@ -80,19 +86,23 @@ class CompanyController extends Controller
     {
 
         try {
+            // Get company
             $company = Company::find($id);
 
+            // Check if company exists
             if (!$company) {
                 throw new Exception('Company Not Found');
             }
 
+            // Upload logo
             if ($request->hasFile('logo')) {
                 $path = $request->file('logo')->store('public/logos');
             }
 
+            // Update company
             $company->update([
                 'name' => $request->name,
-                'logo' => $path,
+                'logo' => isset($path) ? $path : $company->logo,
             ]);
 
             return ResponseFormatter::success($company, 'Company Updated');

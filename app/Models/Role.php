@@ -24,7 +24,7 @@ class Role extends Model
         return $this->hasMany(Employee::class);
     }
 
-    public function responsibilties()
+    public function responsibilities()
     {
         return $this->hasMany(Responsibility::class);
     }
